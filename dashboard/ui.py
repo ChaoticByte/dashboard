@@ -7,7 +7,11 @@ from .thing import System, SystemState
 from nicegui import ui
 
 
-def init_ui(systems: List[System]):
+def init_ui(
+    systems: List[System],
+    ui_refresh_interval: float = 2,          # in seconds
+    system_state_update_interval: float = 15 # in seconds
+):
 
     @ui.refreshable
     def systems_list():
@@ -42,7 +46,7 @@ def init_ui(systems: List[System]):
         for t in systems:
             t.update_state()
 
-    ui.timer(15, callback=update_states)
-    ui.timer(2, systems_list.refresh)
+    ui.timer(system_state_update_interval, callback=update_states)
+    ui.timer(ui_refresh_interval, systems_list.refresh)
 
     dark = ui.dark_mode(None) # auto
