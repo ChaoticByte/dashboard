@@ -1,10 +1,11 @@
 # Copyright (c) 2025, Julian Müller (ChaoticByte)
 
+import asyncio
 
 from typing import List
 from .system import System, SystemState
 
-from nicegui import ui, html
+from nicegui import ui, html, run
 
 
 def init_ui(
@@ -27,11 +28,11 @@ def init_ui(
                         card = card.style("border-left: 4px solid dodgerblue")
 
                     with card:
-                        ui.label(t.name).classes("text-xl font-medium")
+                        ui.label(t.name).classes("text-xl font-medium text-wrap")
                         if t.description != "":
-                            ui.label(t.description).classes("opacity-75")
+                            ui.label(t.description).classes("opacity-75 text-wrap")
                         if t.state_verbose != "":
-                            html.pre(t.state_verbose).classes("opacity-50 text-xs")
+                            html.pre(t.state_verbose).classes("opacity-50 text-xs text-wrap")
                         actions = t.get_actions()
                         if len(actions) > 0:
                             if t.description != "" or t.state_verbose != "":
@@ -45,10 +46,14 @@ def init_ui(
     with ui.column(align_items="center").classes("w-full"):
         systems_list()
 
-    def update_states():
+    async def update_states():
+        coros = []
         for t in systems:
             if isinstance(t, System):
-                t.update_state()
+                # we start all ...
+                coros.append(run.io_bound(t.update_state))
+        # ... and await later.
+        asyncio.gather(*coros)
 
     ui.timer(system_state_update_interval, callback=update_states)
     ui.timer(ui_refresh_interval, systems_list.refresh)
