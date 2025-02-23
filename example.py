@@ -3,7 +3,7 @@
 
 from nicegui import ui
 
-from dashboard.system import System, SystemState
+from dashboard.system import HTTPServer, System, SystemState
 from dashboard.ui import init_ui
 
 
@@ -50,7 +50,7 @@ systems = [
     "Example Heading 1",
     ExampleSystem("Example System 1", "Description text ..."),
     "Example Heading 2",
-    ExampleSystem("Example System 2", "Another description text ...")
+    HTTPServer("example.org", "The example.org HTTP server.", "https://example.org/")
 ]
 
 #
