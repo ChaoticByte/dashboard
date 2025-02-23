@@ -17,10 +17,10 @@ def init_ui(
 
     @ui.refreshable
     def systems_list():
-        with ui.column(align_items="center").style("width: 40vw; max-width: 40rem; min-width: 25rem;"):
+        with ui.row(wrap=True).classes("justify-center items-stretch"):
             for t in systems:
                 if isinstance(t, System):
-                    card = ui.card().classes("w-full")
+                    card = ui.card().style("width: 30rem;")
                     if t.state == SystemState.OK:
                         card = card.style("border-left: 4px solid limegreen")
                     elif t.state == SystemState.FAILED:
@@ -40,12 +40,12 @@ def init_ui(
                         actions = t.get_actions()
                         if len(actions) > 0:
                             if t.description != "" or t.state_verbose != "":
-                                ui.separator()
+                                ui.separator().style("margin-top: auto;")
                             with ui.card_actions():
                                 for n, c in actions.items():
                                     ui.button(text=n, on_click=c)
                 elif isinstance(t, str):
-                    ui.label(t).classes("text-2xl textmedium")
+                    ui.label(t).classes("text-2xl textmedium w-full text-center").style("margin-top: 1.5rem; margin-bottom: .5rem")
 
     with ui.column(align_items="center").classes("w-full"):
         systems_list()
