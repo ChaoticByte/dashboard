@@ -4,7 +4,7 @@
 from typing import List
 from .system import System, SystemState
 
-from nicegui import ui
+from nicegui import ui, html
 
 
 def init_ui(
@@ -31,7 +31,7 @@ def init_ui(
                         if t.description != "":
                             ui.label(t.description).classes("opacity-75")
                         if t.state_verbose != "":
-                            ui.label(t.state_verbose).classes("opacity-50")
+                            html.pre(t.state_verbose).classes("opacity-50 text-xs")
                         actions = t.get_actions()
                         if len(actions) > 0:
                             if t.description != "" or t.state_verbose != "":
