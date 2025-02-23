@@ -47,7 +47,9 @@ class ExampleSystem(System):
 #
 
 systems = [
+    "Example Heading 1",
     ExampleSystem("Example System 1", "Description text ..."),
+    "Example Heading 2",
     ExampleSystem("Example System 2", "Another description text ...")
 ]
 

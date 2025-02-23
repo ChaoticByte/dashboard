@@ -17,34 +17,38 @@ def init_ui(
     def systems_list():
         with ui.column(align_items="center").style("width: 40vw; max-width: 40rem; min-width: 25rem;"):
             for t in systems:
-                card = ui.card().classes("w-full")
-                if t.state == SystemState.OK:
-                    card = card.style("border-left: 4px solid limegreen")
-                elif t.state == SystemState.FAILED:
-                    card = card.style("border-left: 4px solid red")
-                else:
-                    card = card.style("border-left: 4px solid dodgerblue")
-                
-                with card:
-                    ui.label(t.name).classes("text-xl font-medium")
-                    if t.description != "":
-                        ui.label(t.description).classes("opacity-75")
-                    if t.state_verbose != "":
-                        ui.label(t.state_verbose).classes("opacity-50")
-                    actions = t.get_actions()
-                    if len(actions) > 0:
-                        if t.description != "" or t.state_verbose != "":
-                            ui.separator()
-                        with ui.card_actions():
-                            for n, c in actions.items():
-                                ui.button(text=n, on_click=c)
+                if isinstance(t, System):
+                    card = ui.card().classes("w-full")
+                    if t.state == SystemState.OK:
+                        card = card.style("border-left: 4px solid limegreen")
+                    elif t.state == SystemState.FAILED:
+                        card = card.style("border-left: 4px solid red")
+                    else:
+                        card = card.style("border-left: 4px solid dodgerblue")
+
+                    with card:
+                        ui.label(t.name).classes("text-xl font-medium")
+                        if t.description != "":
+                            ui.label(t.description).classes("opacity-75")
+                        if t.state_verbose != "":
+                            ui.label(t.state_verbose).classes("opacity-50")
+                        actions = t.get_actions()
+                        if len(actions) > 0:
+                            if t.description != "" or t.state_verbose != "":
+                                ui.separator()
+                            with ui.card_actions():
+                                for n, c in actions.items():
+                                    ui.button(text=n, on_click=c)
+                elif isinstance(t, str):
+                    ui.label(t).classes("text-2xl textmedium")
 
     with ui.column(align_items="center").classes("w-full"):
         systems_list()
 
     def update_states():
         for t in systems:
-            t.update_state()
+            if isinstance(t, System):
+                t.update_state()
 
     ui.timer(system_state_update_interval, callback=update_states)
     ui.timer(ui_refresh_interval, systems_list.refresh)
