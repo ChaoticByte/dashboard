@@ -2,7 +2,7 @@
 
 
 from typing import List
-from .thing import System, SystemState
+from .system import System, SystemState
 
 from nicegui import ui
 

@@ -3,7 +3,7 @@
 
 from nicegui import ui
 
-from dashboard.thing import System, SystemState
+from dashboard.system import System, SystemState
 from dashboard.ui import init_ui
 
 
@@ -54,4 +54,4 @@ systems = [
 #
 
 init_ui(systems)
-ui.run(show=False)
+ui.run(show=False, title="Dashboard")
