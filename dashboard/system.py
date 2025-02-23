@@ -6,6 +6,7 @@
 import platform
 import requests
 import subprocess
+import time
 
 from enum import Enum
 from typing import Tuple
@@ -25,11 +26,16 @@ class System:
         self.description = description
         self.state = SystemState.UNKNOWN
         self.state_verbose = ""
+        self.last_update = 0
 
     def get_actions(self) -> dict:
         # to be overridden
         # return {'ActionName': callable, ...}
         return {}
+
+    def _update_state(self):
+        self.update_state()
+        self.last_update = time.time()
 
     def update_state(self):
         # to be overridden

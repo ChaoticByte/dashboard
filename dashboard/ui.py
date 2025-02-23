@@ -1,6 +1,7 @@
 # Copyright (c) 2025, Julian Müller (ChaoticByte)
 
 import asyncio
+import datetime
 
 from typing import List
 from .system import System, SystemState
@@ -28,7 +29,10 @@ def init_ui(
                         card = card.style("border-left: 4px solid dodgerblue")
 
                     with card:
-                        ui.label(t.name).classes("text-xl font-medium text-wrap")
+                        with ui.row(align_items="center").classes("w-full"):
+                            ui.label(t.name).classes("text-xl font-medium text-wrap")
+                            ui.space()
+                            ui.label(datetime.datetime.fromtimestamp(t.last_update).strftime(r"%H:%M:%S")).classes("opacity-25 text-xs")
                         if t.description != "":
                             ui.label(t.description).classes("opacity-75 text-wrap")
                         if t.state_verbose != "":
@@ -51,7 +55,7 @@ def init_ui(
         for t in systems:
             if isinstance(t, System):
                 # we start all ...
-                coros.append(run.io_bound(t.update_state))
+                coros.append(run.io_bound(t._update_state))
         # ... and await later.
         asyncio.gather(*coros)
 
