@@ -81,7 +81,7 @@ class HTTPServer(System):
         self.state = SystemState.UNKNOWN
         try:
             r = requests.head(self.url, timeout=1.0, verify=not self.allow_self_signed_cert)
-            if r.status_code == 200:
+            if r.status_code == self.expected_status:
                 self.state = SystemState.OK
             else:
                 self.state = SystemState.FAILED
