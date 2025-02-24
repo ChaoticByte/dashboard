@@ -66,18 +66,21 @@ class PingableSystem(System):
         return s.returncode == 0, s.stdout.decode(), s.stderr.decode()
 
     def update_state(self):
-        self.state = SystemState.UNKNOWN
-        ok, stdout, stderr = self.ping()
-        if ok:
-            self.state = SystemState.OK
-            p_matches = ping_time_regex.findall(stdout)
-            if len(p_matches) > 0:
-                self.state_verbose = f"Ping: {p_matches[0]}"
+        try:
+            ok, stdout, stderr = self.ping()
+            if ok:
+                self.state = SystemState.OK
+                p_matches = ping_time_regex.findall(stdout)
+                if len(p_matches) > 0:
+                    self.state_verbose = f"Ping: {p_matches[0]}"
+                else:
+                    self.state_verbose = stdout.strip("\n\r ")
             else:
-                self.state_verbose = stdout.strip("\n\r ")
-        else:
-            self.state = SystemState.FAILED
-            self.state_verbose = (stdout + "\n" + stderr).strip("\n\r ")
+                self.state = SystemState.FAILED
+                self.state_verbose = (stdout + "\n" + stderr).strip("\n\r ")
+        except Exception as e:
+            self.state = SystemState.UNKNOWN
+            self.state_verbose = f"Exception: {str(e)}"
 
 
 class HTTPServer(System):
@@ -89,7 +92,6 @@ class HTTPServer(System):
         self.allow_self_signed_cert = allow_self_signed_cert
 
     def update_state(self):
-        self.state = SystemState.UNKNOWN
         try:
             r = requests.head(self.url, timeout=1.0, verify=not self.allow_self_signed_cert)
             if r.status_code == self.expected_status:
@@ -99,4 +101,7 @@ class HTTPServer(System):
             self.state_verbose = f"Status {r.status_code} {r.url}"
         except requests.ConnectionError as e:
             self.state = SystemState.FAILED
+            self.state_verbose = f"Connection failed: {str(e)}"
+        except Exception as e:
+            self.state = SystemState.UNKNOWN
             self.state_verbose = f"Exception: {str(e)}"
