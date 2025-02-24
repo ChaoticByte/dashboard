@@ -11,7 +11,7 @@ from nicegui import ui, html, run
 
 def init_ui(
     systems: List[System],
-    ui_refresh_interval: float = 2,          # in seconds
+    ui_refresh_interval: float = 5,          # in seconds
     system_state_update_interval: float = 15 # in seconds
 ):
 

@@ -4,13 +4,14 @@
 # additional libraries
 
 import platform
-import requests
+import re
 import subprocess
 import time
 
 from enum import Enum
 from typing import Tuple
 
+import requests
 
 # base classes and types and stuff
 
@@ -46,6 +47,8 @@ class System:
 # some basic systems
 
 
+ping_time_regex = re.compile(r".*ttl=\d+ time=((?:\d+\.)?\d+ ms).*")
+
 class PingableSystem(System):
 
     def __init__(self, name, description, host: str):
@@ -55,7 +58,11 @@ class PingableSystem(System):
     def ping(self) -> Tuple[bool, str, str]:
         if platform.system().lower() == "windows": p = "-n"
         else: p = "-c"
-        s = subprocess.run(["ping", p, '1', self.host], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        s = subprocess.run(
+            ["ping", p, '1', self.host],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            env={"LC_ALL": "C"} # don't translate
+        )
         return s.returncode == 0, s.stdout.decode(), s.stderr.decode()
 
     def update_state(self):
@@ -63,10 +70,14 @@ class PingableSystem(System):
         ok, stdout, stderr = self.ping()
         if ok:
             self.state = SystemState.OK
-            self.state_verbose = stdout
+            p_matches = ping_time_regex.findall(stdout)
+            if len(p_matches) > 0:
+                self.state_verbose = f"Ping: {p_matches[0]}"
+            else:
+                self.state_verbose = stdout.strip("\n\r ")
         else:
             self.state = SystemState.FAILED
-            self.state_verbose = stdout + "\n" + stderr
+            self.state_verbose = (stdout + "\n" + stderr).strip("\n\r ")
 
 
 class HTTPServer(System):
