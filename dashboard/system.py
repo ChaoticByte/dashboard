@@ -9,16 +9,33 @@ import subprocess
 import time
 
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, List
 
-import requests
+import requests, urllib3
+
+# don't need the warning, ssl verification needs to be disabled explicitly
+urllib3.disable_warnings(category=urllib3.connectionpool.InsecureRequestWarning)
 
 # base classes and types and stuff
+
+
+class Action:
+
+    def __init__(self, name: str, c: callable, *args, **kwargs):
+        self.name = name
+        self.c = c
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self):
+        self.c(*self.args, **self.kwargs)
+
 
 class SystemState(Enum):
     OK = 0
     FAILED = 1
     UNKNOWN = 2
+
 
 class System:
 
@@ -29,10 +46,9 @@ class System:
         self.state_verbose = ""
         self.last_update = 0
 
-    def get_actions(self) -> dict:
+    def get_actions(self) -> List[Action]:
         # to be overridden
-        # return {'ActionName': callable, ...}
-        return {}
+        return []
 
     def _update_state(self):
         self.update_state()

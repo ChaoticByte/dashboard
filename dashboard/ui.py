@@ -4,7 +4,7 @@ import asyncio
 import datetime
 
 from typing import List
-from .system import System, SystemState
+from .system import Action, System, SystemState
 
 from nicegui import ui, html, run
 
@@ -42,8 +42,9 @@ def init_ui(
                             if t.description != "" or t.state_verbose != "":
                                 ui.separator().style("margin-top: auto;")
                             with ui.card_actions():
-                                for n, c in actions.items():
-                                    ui.button(text=n, on_click=c)
+                                for a in actions:
+                                    assert isinstance(a, Action)
+                                    ui.button(text=a.name, on_click=a)
                 elif isinstance(t, str):
                     ui.label(t).classes("text-2xl textmedium w-full text-center").style("margin-top: 1.5rem; margin-bottom: .5rem")
 

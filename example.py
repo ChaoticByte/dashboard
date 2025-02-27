@@ -1,11 +1,12 @@
 # Copyright (c) 2025, Julian Müller (ChaoticByte)
 
 
+from typing import List
+
 from nicegui import ui
 
-from dashboard.system import HTTPServer, System, SystemState
+from dashboard.system import Action, HTTPServer, System, SystemState
 from dashboard.ui import init_ui
-
 
 # define systems
 
@@ -26,11 +27,13 @@ class ExampleSystem(System):
             self.state = SystemState.FAILED
             self.state_verbose = f"{self.name} is currently stopped."
 
-    def get_actions(self) -> dict:
+    def get_actions(self) -> List[Action]:
+        actions = []
         if self.started:
-            return {"Stop": self.stop}
+            actions.append(Action("Stop", self.stop))
         else:
-            return {"Start": self.start}
+            actions.append(Action("Start", self.start))
+        return actions
 
     def start(self):
         self.state = SystemState.UNKNOWN
@@ -56,4 +59,4 @@ systems = [
 #
 
 init_ui(systems)
-ui.run(show=False, title="Dashboard")
+ui.run(show=False, title="Dashboard", port=8000)
