@@ -10,7 +10,13 @@ import time
 from enum import Enum
 from typing import List
 
+import requests, urllib3
+
 from .mixins import PingableMixin, WakeOnLanMixin
+
+
+# don't need the warning, bc. ssl verification needs to be disabled explicitly
+urllib3.disable_warnings(category=urllib3.connectionpool.InsecureRequestWarning)
 
 
 # base classes and types and stuff
@@ -108,12 +114,6 @@ class PingableWOLSystem(WakeOnLanMixin, PingableSystem):
 
 
 # HTTP Server System
-
-
-import requests, urllib3
-
-# don't need the warning, bc. ssl verification needs to be disabled explicitly
-urllib3.disable_warnings(category=urllib3.connectionpool.InsecureRequestWarning)
 
 
 class HTTPServer(System):

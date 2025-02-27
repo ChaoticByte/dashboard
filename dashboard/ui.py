@@ -39,6 +39,7 @@ def init_ui(
                         if t.state_verbose != "":
                             html.pre(t.state_verbose).classes("opacity-50 text-xs text-wrap")
                         actions = t.get_actions()
+                        assert actions != None
                         if len(actions) > 0:
                             if t.description != "" or t.state_verbose != "":
                                 ui.separator().style("margin-top: auto;")
