@@ -3,18 +3,15 @@
 
 # additional libraries
 
-import platform
+
 import re
-import subprocess
 import time
 
 from enum import Enum
-from typing import Tuple, List
+from typing import List
 
-import requests, urllib3
+from .mixins import PingableMixin, WakeOnLanMixin
 
-# don't need the warning, ssl verification needs to be disabled explicitly
-urllib3.disable_warnings(category=urllib3.connectionpool.InsecureRequestWarning)
 
 # base classes and types and stuff
 
@@ -35,6 +32,9 @@ class SystemState(Enum):
     OK = 0
     FAILED = 1
     UNKNOWN = 2
+
+
+# base System
 
 
 class System:
@@ -60,26 +60,16 @@ class System:
         self.state_verbose = ""
 
 
-# some basic systems
+# Pingable System
 
 
 ping_time_regex = re.compile(r".*ttl=\d+ time=((?:\d+\.)?\d+ ms).*")
 
-class PingableSystem(System):
+class PingableSystem(PingableMixin, System):
 
     def __init__(self, name, description, host: str):
         super().__init__(name, description)
         self.host = host
-
-    def ping(self) -> Tuple[bool, str, str]:
-        if platform.system().lower() == "windows": p = "-n"
-        else: p = "-c"
-        s = subprocess.run(
-            ["ping", p, '1', self.host],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            env={"LC_ALL": "C"} # don't translate
-        )
-        return s.returncode == 0, s.stdout.decode(), s.stderr.decode()
 
     def update_state(self):
         try:
@@ -97,6 +87,33 @@ class PingableSystem(System):
         except Exception as e:
             self.state = SystemState.UNKNOWN
             self.state_verbose = f"Exception: {str(e)}"
+
+
+# Pingable + WakeOnLan System
+
+
+class PingableWOLSystem(WakeOnLanMixin, PingableSystem):
+
+    '''Pingable System with Wake On LAN'''
+
+    def __init__(self, name, description, host_ip: str, host_mac: str):
+        super().__init__(name, description, host_ip)
+        self.host_mac = host_mac
+
+    def get_actions(self) -> List[Action]:
+        actions = []
+        if self.state != SystemState.OK:
+            actions.append(Action("Wake On LAN", self.wakeonlan))
+        return actions
+
+
+# HTTP Server System
+
+
+import requests, urllib3
+
+# don't need the warning, bc. ssl verification needs to be disabled explicitly
+urllib3.disable_warnings(category=urllib3.connectionpool.InsecureRequestWarning)
 
 
 class HTTPServer(System):
