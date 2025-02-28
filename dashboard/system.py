@@ -193,23 +193,22 @@ class PingableWOLSystem(WakeOnLanMixin, PingableSystem):
         return actions
 
 
-# Pingable + WOL + SSH
+# Pingable + SSH
 
 
-class SSHControllablePingableWOLSystem(SSHMixin, PingableWOLSystem):
+class SSHControllablePingableSystem(SSHMixin, PingableSystem):
 
     def __init__(
         self, name, description,
-        host_ip: str, host_mac: str,
+        host_ip: str,
         ssh_commands: Dict[str, str], # dict containing "action name": "command ..."
         ssh_user: str,
         ssh_key_file: str,
         ssh_key_passphrase: str = None,
         ssh_port: int = 22,
     ):
-        super().__init__(name, description, host_ip, host_mac)
+        super().__init__(name, description, host_ip)
         self.host = host_ip
-        self.host_mac = host_mac
         self.ssh_commands = ssh_commands
         self.ssh_user = ssh_user
         self.ssh_key_file = ssh_key_file
@@ -221,6 +220,39 @@ class SSHControllablePingableWOLSystem(SSHMixin, PingableWOLSystem):
         if not self.state == SystemState.FAILED:
             actions.extend(self.actions_from_ssh_commands())
         return actions
+
+
+# Pingable + WOL + SSH
+
+
+class SSHControllablePingableWOLSystem(WakeOnLanMixin, SSHControllablePingableSystem):
+
+    def __init__(
+        self, name, description,
+        host_ip: str, host_mac: str,
+        ssh_commands: Dict[str, str], # dict containing "action name": "command ..."
+        ssh_user: str,
+        ssh_key_file: str,
+        ssh_key_passphrase: str = None,
+        ssh_port: int = 22,
+    ):
+        super().__init__(
+            name, description, host_ip,
+            ssh_commands=ssh_commands,
+            ssh_user=ssh_user,
+            ssh_key_file=ssh_key_file,
+            ssh_key_passphrase=ssh_key_passphrase,
+            ssh_port=ssh_port
+        )
+        self.host_mac = host_mac
+
+
+    def get_actions(self) -> List[Action]:
+        actions = super().get_actions()
+        if self.state != SystemState.OK:
+            actions.append(Action("Wake On LAN", self.wakeonlan))
+        return actions
+
 
 # alias :)
 Doggo = SSHControllablePingableWOLSystem
