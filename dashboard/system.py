@@ -35,6 +35,7 @@ class Action:
     def __call__(self):
         try:
             self.c(*self.args, **self.kwargs)
+            ui.notify(f"Action '{self.name}' finished.", type="positive")
         except Exception as e:
             ui.notify(f"Exception: {e.__str__()}", close_button=True, type="warning", timeout=0, multi_line=True)
             raise e
