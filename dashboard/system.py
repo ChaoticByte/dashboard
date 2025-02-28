@@ -12,6 +12,8 @@ from typing import List
 
 import requests, urllib3
 
+from nicegui import ui
+
 from .mixins import PingableMixin, WakeOnLanMixin
 
 
@@ -31,7 +33,11 @@ class Action:
         self.kwargs = kwargs
 
     def __call__(self):
-        self.c(*self.args, **self.kwargs)
+        try:
+            self.c(*self.args, **self.kwargs)
+        except Exception as e:
+            ui.notify(f"Exception: {e.__str__()}", close_button=True, type="warning", timeout=0, multi_line=True)
+            raise e
 
 
 class SystemState(Enum):
