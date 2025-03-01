@@ -21,7 +21,7 @@ def init_ui(
         with ui.row(wrap=True).classes("justify-center items-stretch"):
             for t in systems:
                 if isinstance(t, System):
-                    card = ui.card().style("width: 30rem;")
+                    card = ui.card().style("width: 30rem; max-width: 95vw;")
                     if t.state == SystemState.OK:
                         card = card.style("border-left: 4px solid limegreen")
                     elif t.state == SystemState.FAILED:
@@ -37,7 +37,7 @@ def init_ui(
                         if t.description != "":
                             ui.label(t.description).classes("opacity-75 text-wrap")
                         if t.state_verbose != "":
-                            html.pre(t.state_verbose).classes("opacity-50 text-xs text-wrap")
+                            html.pre(t.state_verbose).classes("opacity-50 text-xs text-wrap break-all")
                         actions = t.get_actions()
                         assert actions != None
                         if len(actions) > 0:
